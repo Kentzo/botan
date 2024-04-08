@@ -610,7 +610,15 @@ class ProjectiveCurvePoint {
             }
          }
 
-         if(N <= 2 || any_identity) {
+         // Apparently GCC 11 on x86-64 does something incorrect here,
+         // affecting at least P-521
+#if defined(BOTAN_BUILD_COMPILER_IS_GCC) && defined(BOTAN_TARGET_ARCH_IS_X86_64) && __GNUC__ == 11
+         const bool workaround_gcc_11_bug = true;
+#else
+         const bool workaround_gcc_11_bug = false;
+#endif
+
+         if(N <= 2 || any_identity || workaround_gcc_11_bug) {
             for(size_t i = 0; i != N; ++i) {
                affine[i] = projective[i].to_affine();
             }
