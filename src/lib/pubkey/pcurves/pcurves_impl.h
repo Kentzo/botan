@@ -681,6 +681,7 @@ class PrecomputedMulTable {
       static const constinit size_t TABLE_SIZE = Scalar::BITS;
 
       constexpr PrecomputedMulTable(const AffinePoint& p) : m_table{} {
+#if 0
          std::array<ProjectivePoint, TABLE_SIZE> table;
 
          table[0] = ProjectivePoint::from_affine(p);
@@ -689,6 +690,13 @@ class PrecomputedMulTable {
          }
 
          m_table = ProjectivePoint::to_affine_batch(table);
+#else
+         auto pt = ProjectivePoint::from_affine(p);
+         for(size_t i = 0; i != TABLE_SIZE; ++i) {
+            m_table[i] = pt.to_affine();
+            pt = pt.dbl();
+         }
+#endif
       }
 
       constexpr ProjectivePoint operator()(const Scalar& s) const {
